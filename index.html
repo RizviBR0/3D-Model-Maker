@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Maker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Left Toolbar -->
+        <div class="toolbar-left">
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Primitives</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn" data-primitive="cube" title="Add Cube">
+                        <span class="tool-icon">⬛</span>
+                        <span class="tool-label">Cube</span>
+                    </button>
+                    <button class="tool-btn" data-primitive="sphere" title="Add Sphere">
+                        <span class="tool-icon">⬤</span>
+                        <span class="tool-label">Sphere</span>
+                    </button>
+                    <button class="tool-btn" data-primitive="cylinder" title="Add Cylinder">
+                        <span class="tool-icon">⬟</span>
+                        <span class="tool-label">Cylinder</span>
+                    </button>
+                    <button class="tool-btn" data-primitive="cone" title="Add Cone">
+                        <span class="tool-icon">▲</span>
+                        <span class="tool-label">Cone</span>
+                    </button>
+                    <button class="tool-btn" data-primitive="plane" title="Add Plane">
+                        <span class="tool-icon">▬</span>
+                        <span class="tool-label">Plane</span>
+                    </button>
+                    <button class="tool-btn" data-primitive="torus" title="Add Torus">
+                        <span class="tool-icon">⭕</span>
+                        <span class="tool-label">Torus</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">Tools</h3>
+                <div class="tool-list">
+                    <button class="tool-btn active" data-tool="select" title="Select">
+                        <span class="tool-icon">↖</span>
+                        <span class="tool-label">Select</span>
+                    </button>
+                    <button class="tool-btn" data-tool="translate" title="Move">
+                        <span class="tool-icon">✥</span>
+                        <span class="tool-label">Move</span>
+                    </button>
+                    <button class="tool-btn" data-tool="rotate" title="Rotate">
+                        <span class="tool-icon">↻</span>
+                        <span class="tool-label">Rotate</span>
+                    </button>
+                    <button class="tool-btn" data-tool="scale" title="Scale">
+                        <span class="tool-icon">⧉</span>
+                        <span class="tool-label">Scale</span>
+                    </button>
+                    <button class="tool-btn" data-tool="delete" title="Delete">
+                        <span class="tool-icon">🗑</span>
+                        <span class="tool-label">Delete</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-section">
+                <h3 class="toolbar-title">View</h3>
+                <div class="tool-list">
+                    <button class="tool-btn toggle" data-view="wireframe" title="Toggle Wireframe">
+                        <span class="tool-icon">⚏</span>
+                        <span class="tool-label">Wireframe</span>
+                    </button>
+                    <button class="tool-btn toggle active" data-view="grid" title="Toggle Grid">
+                        <span class="tool-icon">⊞</span>
+                        <span class="tool-label">Grid</span>
+                    </button>
+                    <button class="tool-btn" data-view="reset" title="Reset View">
+                        <span class="tool-icon">👁</span>
+                        <span class="tool-label">Reset View</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Viewport -->
+        <div class="viewport-container">
+            <canvas id="threejs-canvas"></canvas>
+        </div>
+
+        <!-- Right Properties Panel -->
+        <div class="properties-panel">
+            <h3 class="panel-title">Properties</h3>
+
+            <div class="property-section" id="object-properties">
+                <div class="property-group">
+                    <label class="property-label">Object Name</label>
+                    <input type="text" class="form-control property-input" id="object-name" value="No selection"
+                        readonly>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">Position</label>
+                    <div class="property-vector">
+                        <div class="vector-input">
+                            <label>X</label>
+                            <input type="number" class="form-control" id="pos-x" step="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Y</label>
+                            <input type="number" class="form-control" id="pos-y" step="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Z</label>
+                            <input type="number" class="form-control" id="pos-z" step="0.1" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">Rotation</label>
+                    <div class="property-vector">
+                        <div class="vector-input">
+                            <label>X</label>
+                            <input type="number" class="form-control" id="rot-x" step="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Y</label>
+                            <input type="number" class="form-control" id="rot-y" step="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Z</label>
+                            <input type="number" class="form-control" id="rot-z" step="0.1" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">Scale</label>
+                    <div class="property-vector">
+                        <div class="vector-input">
+                            <label>X</label>
+                            <input type="number" class="form-control" id="scale-x" step="0.1" min="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Y</label>
+                            <input type="number" class="form-control" id="scale-y" step="0.1" min="0.1" disabled>
+                        </div>
+                        <div class="vector-input">
+                            <label>Z</label>
+                            <input type="number" class="form-control" id="scale-z" step="0.1" min="0.1" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="property-group">
+                    <label class="property-label">Material</label>
+                    <div class="material-controls">
+                        <div class="color-control">
+                            <label>Color</label>
+                            <input type="color" class="color-picker" id="object-color" value="#ff6b35" disabled>
+                        </div>
+                        <div class="slider-control">
+                            <label>Opacity</label>
+                            <input type="range" class="opacity-slider" id="object-opacity" min="0" max="1" step="0.1"
+                                value="1" disabled>
+                            <span class="slider-value">1.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="object-count">Objects: 0</span>
+                <span class="status-separator">|</span>
+                <span id="selected-object">Selected: None</span>
+            </div>
+            <div class="dev-div">
+                <p>
+                    Made with <i style="color: red;" class="fas fa-heart"></i> by
+                    <a href="https://www.instagram.com/RizviBR0/" target="_blank">RizviBR0</a>
+                </p>
+            </div>
+            <div class="status-right">
+                <span id="fps-counter">FPS: 60</span>
+                <span class="status-separator">|</span>
+                <span id="camera-info">Camera: Default</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu hidden" id="context-menu">
+        <div class="context-item" id="context-delete">
+            <span class="context-icon">🗑</span>
+            Delete Object
+        </div>
+        <div class="context-item" id="context-duplicate">
+            <span class="context-icon">📋</span>
+            Duplicate Object
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
